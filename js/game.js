@@ -7,22 +7,32 @@ var ctx = canvas.getContext('2d');
 function Ball(){
   this.radius = 25;
 
-  this.x = (canvas.width / 2) + (this.radius);
-  this.y = (canvas.height / 2) + (this.radius);
-  
-  // start off with a random velocity
-  this.velX = Math.random() * (8 + 8) + -8;
-  this.velY = Math.random() * (8 + 8) + -8;
+  this.reset = function(){
+    this.x = (canvas.width / 2) + (this.radius);
+    this.y = (canvas.height / 2) + (this.radius);
 
+    // ranX is a random number between 4 and 8
+    var ranX = Math.random() * (4 - 8) + 4;
+    // we then create another random number and
+    // use it to determine if this number should be negative.
+    this.velX = Math.random() > 0.5 ? ranX : -ranX;
+
+    // same thing we did to ranX
+    var ranY = Math.random() * (1 - 3) + 1;
+    this.velY = Math.random() > 0.5 ? ranY : -ranY;
+  };
+
+  //            UPDATE 
   this.update = function(paddle1, paddle2){
     
     // Boundry detection
     if(this.x + this.velX + this.radius >= canvas.width){
-      this.x = canvas.width - this.radius;
-      this.velX = -this.velX;
+      // give a  point to player 1 and reset the ball.
+      paddle1.score++;
+      this.reset();
     } else if(this.x + this.velX - this.radius <= 0){
-      this.x = this.radius;
-      this.velX = -this.velX;
+      paddle2.score++;
+      this.reset();
     } else {
       this.x += this.velX;
     }
@@ -38,13 +48,13 @@ function Ball(){
     }
 
     // Paddle detection
-    if(this.x - this.radius <= paddle1.x + paddle1.width){
+    if(this.x - this.radius <= paddle1.x + paddle1.width && this.y > paddle1.y && this.y < paddle1.y + paddle1.height){
       console.log("COLLISION");
       this.x = paddle1.x + paddle1.width + this.radius;
       this.velX = -this.velX;
       this.velY = this.velY + paddle1.velY * 0.6;
     }
-    if(this.x + this.radius >= paddle2.x){
+    if(this.x + this.radius >= paddle2.x && this.y > paddle2.y && this.y < paddle2.y + paddle2.height){
       console.log("COLLISION");
       this.x = paddle2.x - this.radius;
       this.velX = -this.velX;
@@ -61,6 +71,9 @@ function Ball(){
     ctx.strokeStyle = '#003300';
     ctx.stroke();
   };
+
+  // do a reset on init
+  this.reset();
 }
 
 // Paddle object
@@ -71,9 +84,11 @@ function Paddle(side){
   }
   // paddles must have a side!('left' or 'right')
   this.side = side;
-  
+
   this.width = 25;
   this.height = 100;
+
+  this.score = 0;
 
   // Paddles only move up and down
   this.velY = 0;
@@ -134,7 +149,7 @@ function Game(){
     var running = true;
     var paused = false;
     var fps = 60;
-    
+
     var paddle1 = new Paddle('left');
     this.paddle1 = function(){
       return paddle1;
