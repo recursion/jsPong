@@ -3,6 +3,53 @@
 var canvas = document.getElementById('game-canvas');
 var ctx = canvas.getContext('2d');
 
+// Ball object
+function Ball(){
+
+  this.radius = 25;
+
+  this.x = (canvas.width / 2) + (this.radius);
+  this.y = (canvas.height / 2) + (this.radius);
+  
+  // start off with a random velocity
+  this.velX = Math.random() * (10 + 10) + -10;
+  this.velY = Math.random() * (10 + 10) + -10;
+
+  this.update = function(){
+    
+    // Boundry detection
+    if(this.x + this.velX + this.radius >= canvas.width){
+      this.x = canvas.width - this.radius;
+      this.velX = -this.velX;
+    } else if(this.x + this.velX - this.radius <= 0){
+      this.x = this.radius;
+      this.velX = -this.velX;
+    } else {
+      this.x += this.velX;
+    }
+
+    if(this.y + this.velY + this.radius >= canvas.height){
+      this.y = canvas.height - this.radius;
+      this.velY = -this.velY;
+    } else if(this.y + this.velY - this.radius <= 0){
+      this.y = this.radius;
+      this.velY = -this.velY;
+    } else {
+      this.y += this.velY;
+    }
+
+  };
+  this.draw = function(){
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'green';
+    ctx.fill();
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#003300';
+    ctx.stroke();
+  };
+}
+
 // Paddle object
 function Paddle(side){
   // Initialize variables with arguments if used or defaults.
@@ -82,10 +129,13 @@ function Game(){
     this.player2 = function(){
       return player2;
     };
+    
+    var ball = new Ball();
 
     var update = function(){
       player1.update();
       player2.update();
+      ball.update();
     };
     var draw = function(){
       //console.log('giDrawing');
@@ -99,6 +149,7 @@ function Game(){
       // Draw player paddles
       player1.draw();
       player2.draw();
+      ball.draw();
 
       // Draw any HUD items here
   
