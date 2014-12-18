@@ -12,7 +12,7 @@ function Ball(){
     this.y = (canvas.height / 2) + (this.radius);
 
     // ranX is a random number between 4 and 8
-    var ranX = Math.random() * (4 - 8) + 4;
+    var ranX = Math.random() * (5 - 8) + 5;
     // we then create another random number and
     // use it to determine if this number should be negative.
     this.velX = Math.random() > 0.5 ? ranX : -ranX;
@@ -67,9 +67,6 @@ function Ball(){
     ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
     ctx.fillStyle = 'green';
     ctx.fill();
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = '#003300';
-    ctx.stroke();
   };
 
   // do a reset on init
@@ -181,9 +178,19 @@ function Game(){
       ball.draw();
 
       // Draw any HUD items here
-  
+      ctx.font='18px Georgia';
+      ctx.fillStyle='green';
+      ctx.fillText('Player1: ' + paddle1.score ,10,30); 
+      
+      ctx.fillText('Player2: ' + paddle2.score , canvas.width - 100,30); 
+
     };
-    
+    this.drawText = function(size, x, y){
+      ctx.font='20px Georgia';
+      ctx.fillStyle='green';
+      ctx.fillText('Hello World!',10,50);
+    };
+
     /////////////////////////
     // PUBLIC METHODS
     /////////////////////////
