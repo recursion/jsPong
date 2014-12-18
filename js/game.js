@@ -4,8 +4,7 @@ var canvas = document.getElementById('game-canvas');
 var ctx = canvas.getContext('2d');
 
 // Ball object
-function Ball(){
-
+function Ball(paddle1, paddle2){
   this.radius = 25;
 
   this.x = (canvas.width / 2) + (this.radius);
@@ -122,20 +121,20 @@ function Game(){
     var paused = false;
     var fps = 60;
     
-    var player1 = new Paddle('left');
-    this.player1 = function(){
-      return player1;
+    var paddle1 = new Paddle('left');
+    this.paddle1 = function(){
+      return paddle1;
     };
-    var player2 = new Paddle('right');
-    this.player2 = function(){
-      return player2;
+    var paddle2 = new Paddle('right');
+    this.paddle2 = function(){
+      return paddle2;
     };
     
     var ball = new Ball();
 
     var update = function(){
-      player1.update();
-      player2.update();
+      paddle1.update();
+      paddle2.update();
       ball.update();
     };
     var draw = function(){
@@ -148,8 +147,8 @@ function Game(){
       // draw any background stuff
 
       // Draw player paddles
-      player1.draw();
-      player2.draw();
+      paddle1.draw();
+      paddle2.draw();
       ball.draw();
 
       // Draw any HUD items here
@@ -191,26 +190,26 @@ function Game(){
     switch(chCode){
       case 87:
         console.log('w pressed');
-        if (Math.abs(player1.velY) < player1.maxVelocity){
-          player1.velY -= player1.speed;
+        if (Math.abs(paddle1.velY) < paddle1.maxVelocity){
+          paddle1.velY -= paddle1.speed;
         }
         break;
       case 83:
         console.log('s pressed');
-        if (Math.abs(player1.velY) < player1.maxVelocity){
-          player1.velY += player1.speed;
+        if (Math.abs(paddle1.velY) < paddle1.maxVelocity){
+          paddle1.velY += paddle1.speed;
         }
         break;
       case 38:
         console.log('Up arrow pressed');
-        if (Math.abs(player2.velY) < player2.maxVelocity){
-          player2.velY -= player2.speed;
+        if (Math.abs(paddle2.velY) < paddle2.maxVelocity){
+          paddle2.velY -= paddle2.speed;
         }
         break;
       case 40:
         console.log('Down arrow pressed');
-        if (Math.abs(player2.velY) < player2.maxVelocity){
-          player2.velY += player2.speed;
+        if (Math.abs(paddle2.velY) < paddle2.maxVelocity){
+          paddle2.velY += paddle2.speed;
         }
         break;
       
@@ -227,22 +226,22 @@ function Game(){
     switch(chCode){
       case 87:
         console.log('w released');
-        player1.velY = 0; 
+        paddle1.velY = 0; 
         break;
 
       case 83:
         console.log('s released');
-        player1.velY = 0; 
+        paddle1.velY = 0; 
         break;
       
       case 38:
         console.log('Up arrow released');
-        player2.velY = 0; 
+        paddle2.velY = 0; 
         break;
 
       case 40:
         console.log('Down arrow released');
-        player2.velY = 0; 
+        paddle2.velY = 0; 
         break;
 
       case 32:
