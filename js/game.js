@@ -95,11 +95,12 @@ function Paddle(side){
   };
 
   this.draw = function(){
+    var offset = 10;
     ctx.fillStyle = this.color;
     if(side === 'left'){
-      ctx.fillRect(this.x, this.y, this.width, this.height);
+      ctx.fillRect(this.x + offset, this.y, this.width, this.height);
     } else {
-      ctx.fillRect(canvas.width-this.width, this.y, this.width, this.height);
+      ctx.fillRect(canvas.width-this.width-offset, this.y, this.width, this.height);
     }
   };
 }
