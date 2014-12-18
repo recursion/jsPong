@@ -4,17 +4,17 @@ var canvas = document.getElementById('game-canvas');
 var ctx = canvas.getContext('2d');
 
 // Ball object
-function Ball(paddle1, paddle2){
+function Ball(){
   this.radius = 25;
 
   this.x = (canvas.width / 2) + (this.radius);
   this.y = (canvas.height / 2) + (this.radius);
   
   // start off with a random velocity
-  this.velX = Math.random() * (10 + 10) + -10;
-  this.velY = Math.random() * (10 + 10) + -10;
+  this.velX = Math.random() * (8 + 8) + -8;
+  this.velY = Math.random() * (8 + 8) + -8;
 
-  this.update = function(){
+  this.update = function(paddle1, paddle2){
     
     // Boundry detection
     if(this.x + this.velX + this.radius >= canvas.width){
@@ -35,6 +35,20 @@ function Ball(paddle1, paddle2){
       this.velY = -this.velY;
     } else {
       this.y += this.velY;
+    }
+
+    // Paddle detection
+    if(this.x - this.radius <= paddle1.x + paddle1.width){
+      console.log("COLLISION");
+      this.x = paddle1.x + paddle1.width + this.radius;
+      this.velX = -this.velX;
+      this.velY = this.velY + paddle1.velY * 0.6;
+    }
+    if(this.x + this.radius >= paddle2.x){
+      console.log("COLLISION");
+      this.x = paddle2.x - this.radius;
+      this.velX = -this.velX;
+      this.velY = this.velY + paddle1.velY * 0.6;
     }
 
   };
@@ -135,7 +149,7 @@ function Game(){
     var update = function(){
       paddle1.update();
       paddle2.update();
-      ball.update();
+      ball.update(paddle1, paddle2);
     };
     var draw = function(){
       //console.log('giDrawing');
