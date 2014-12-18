@@ -1,60 +1,50 @@
 'use strict';
 
 var canvas = document.getElementById('game-canvas');
+var ctx = canvas.getContext('2d');
 
-// Player object
-function Player1(){
-  
+// Paddle object
+function Paddle(side){
+  // Initialize variables with arguments if used or defaults.
+  if(typeof side === 'undefined'){
+    return 'FAIL! - MUST use side argument (\'left\') or (\'right\')';
+  }
+  this.side = side;
   this.width = 25;
   this.height = 100;
-  
-  this.x = 0;
-  this.y = 0;
 
+  // Put the paddle right in the middle of the y-axis
+  this.y = (canvas.height / 2) - (this.height / 2);
+
+  if(side === 'left'){
+    // Set up the left side paddle
+    this.x = 0;
+    this.color = '#ff0000';
+  } else {
+    // Set up the right side paddle.
+    this.x = canvas.width - this.width;
+    this.color = '#0000ff';
+  }
   // Paddles only move up and down
   this.velY = 0;
   this.maxVelocity = 5;
 
-  this.color = '#AA0000';
-
   this.update = function(){
-    console.log('Updating Player 1.');
+    console.log('Updating ' + this.side);
   };
 
-  this.draw = function(canvas, ctx){
+  this.draw = function(){
     ctx.fillStyle = this.color;
-    ctx.fillRect(this.x, this.y, this.width, this.height);
+    if(side === 'left'){
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+    } else {
+      ctx.fillRect(canvas.width-this.width, this.y, this.width, this.height);
+    }
   };
-}
-
-function Player2(){
-  //, 0, 
-  
-  this.width = 25;
-  this.height = 100;
-  
-  this.x = canvas.width;
-  this.y = 0;
-
-  // Paddles only move up and down
-  this.velY = 0;
-  this.maxVelocity = 5;
-
-  this.color = '#0000AA';
-
-  this.update = function(){
-    console.log('Updating Player 2.');
-  };
-
-  this.draw = function(canvas, ctx){
-    ctx.fillStyle = this.color;
-    ctx.fillRect(this.x-this.width, this.y, this.width, this.height);
-  };
-
 }
 
 // Create our game object
-function Game(canvas){
+function Game(){
   // Make sure we can get a context from the canvas object passed in
   if(!canvas.getContext){
     console.log('Error. Unable to get Canvas - Exiting.');
@@ -70,13 +60,11 @@ function Game(canvas){
     var paused = false;
     var fps = 60;
     
-    var ctx = canvas.getContext('2d');
-    
-    var player1 = new Player1();
+    var player1 = new Paddle('left');
     this.player1 = function(){
       return player1;
     };
-    var player2 = new Player2();
+    var player2 = new Paddle('right');
     this.player2 = function(){
       return player2;
     };
@@ -94,8 +82,8 @@ function Game(canvas){
       // draw any background stuff
 
       // Draw player paddles
-      player1.draw(canvas, ctx);
-      player2.draw(canvas, ctx);
+      player1.draw();
+      player2.draw();
 
       // Draw any HUD items here
   
@@ -114,7 +102,7 @@ function Game(canvas){
     // the main game loop.
     // this is really the only public method (for now)
     this.run = function(){
-      //console.log('giIn Run ' + running);
+      //console.log('In Run ' + running);
       if(running){
         update();
         draw();
@@ -194,7 +182,7 @@ function onKeyUpEvent(event){
   }
 
 }
-
+// respond to window size changes
 function resizeCanvas(){
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -209,7 +197,7 @@ window.addEventListener('resize', function(){
 resizeCanvas();
 
 //  Create a new game 
-var game = new Game(canvas);
+var game = new Game();
 if(typeof game.fps === 'undefined'){
   console.log('giDid not get a proper game object');
 } else {
