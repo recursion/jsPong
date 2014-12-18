@@ -7,6 +7,10 @@ var ctx = canvas.getContext('2d');
 function Ball(){
   this.radius = 25;
 
+  /******************************************************************
+  *                 BALL RESET
+  *         resets position and velocity
+  ******************************************************************/
   this.reset = function(){
     this.x = (canvas.width / 2) + (this.radius);
     this.y = (canvas.height / 2) + (this.radius);
@@ -22,10 +26,17 @@ function Ball(){
     this.velY = Math.random() > 0.5 ? ranY : -ranY;
   };
 
-  //            UPDATE 
+  /******************************************************************
+  *            BALL UPDATE METHOD
+  *     updates coordinates and velocity
+  *     as well as bounds checking / paddle checking
+  *
+  *     takes arguments paddle1 and paddle2 
+  *     for bounds checking
+  ******************************************************************/
   this.update = function(paddle1, paddle2){
     
-    // Boundry detection
+    // Left/Right Boundry detection
     if(this.x + this.velX + this.radius >= canvas.width){
       // give a  point to player 1 and reset the ball.
       paddle1.score++;
@@ -36,7 +47,7 @@ function Ball(){
     } else {
       this.x += this.velX;
     }
-
+    // UP/DOWN Boundry Detection
     if(this.y + this.velY + this.radius >= canvas.height){
       this.y = canvas.height - this.radius;
       this.velY = -this.velY;
@@ -47,21 +58,25 @@ function Ball(){
       this.y += this.velY;
     }
 
-    // Paddle detection
+    // Left Paddle detection
     if(this.x - this.radius <= paddle1.x + paddle1.width && this.y > paddle1.y && this.y < paddle1.y + paddle1.height){
-      console.log("COLLISION");
+      console.log('COLLISION');
       this.x = paddle1.x + paddle1.width + this.radius;
       this.velX = -this.velX;
       this.velY = this.velY + paddle1.velY * 0.6;
     }
+    // Right Paddle detection
     if(this.x + this.radius >= paddle2.x && this.y > paddle2.y && this.y < paddle2.y + paddle2.height){
-      console.log("COLLISION");
+      console.log('COLLISION');
       this.x = paddle2.x - this.radius;
       this.velX = -this.velX;
       this.velY = this.velY + paddle1.velY * 0.6;
     }
-
   };
+  
+  /******************************************************************
+  *            BALL DRAW METHOD
+  ******************************************************************/
   this.draw = function(){
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
@@ -69,7 +84,8 @@ function Ball(){
     ctx.fill();
   };
 
-  // do a reset on init
+  // since this is the first run through
+  // go ahead and setup a ball using the reset method
   this.reset();
 }
 
@@ -92,9 +108,6 @@ function Paddle(side){
   this.speed = 4;
   this.maxVelocity = 12;
 
-  // Put the paddle right in the middle of the y-axis
-  this.y = (canvas.height / 2) - (this.height / 2);
-
   if(side === 'left'){
     // Set up the left side paddle
     this.x = 0;
@@ -105,6 +118,9 @@ function Paddle(side){
     this.color = '#0000ff';
   }
 
+  /******************************************************************
+  *                     PADDLE UPDATE METHOD
+  ******************************************************************/
   this.update = function(){
     //console.log('Updating ' + this.side + ' velY: ' + this.velY);
     console.log(this.velY);
@@ -118,7 +134,10 @@ function Paddle(side){
       this.y += this.velY;
     }
   };
-
+  
+  /******************************************************************
+  *                       PADDLE DRAW METHOD
+  ******************************************************************/
   this.draw = function(){
     var offset = 10;
     ctx.fillStyle = this.color;
@@ -128,6 +147,15 @@ function Paddle(side){
       ctx.fillRect(canvas.width-this.width-offset, this.y, this.width, this.height);
     }
   };
+  /******************************************************************
+  *                       PADDLE RESET METHOD
+  ******************************************************************/
+  this.reset = function(){
+    // Put the paddle right in the middle of the y-axis
+    this.y = (canvas.height / 2) - (this.height / 2);
+  };
+
+  this.reset();
 }
 
 // Create our game object
@@ -135,18 +163,17 @@ function Game(){
   // Make sure we can get a context from the canvas object passed in
   if(!canvas.getContext){
     console.log('Error. Unable to get Canvas - Exiting.');
-    // TODO something like this?   =>  throw new Error('giNo canvas given.');
-    // or should it we create an empty object since we have to return something?
-    // like so => this = {};
+    // TODO better error checking/reporting here? 
   } else {
+    // Good to go!
+    console.log('Loading game.....');
 
-    console.log('Starting game!');
-
-    // Init variables since we have a canvas
+    // Init variables 
     var running = true;
     var paused = false;
     var fps = 60;
 
+    // Create the player paddles
     var paddle1 = new Paddle('left');
     this.paddle1 = function(){
       return paddle1;
@@ -156,16 +183,22 @@ function Game(){
       return paddle2;
     };
     
+    // herp derp?
     var ball = new Ball();
 
+    /******************************************************************
+    *                     GAME UPDATE METHOD
+    ******************************************************************/
     var update = function(){
       paddle1.update();
       paddle2.update();
       ball.update(paddle1, paddle2);
     };
-    var draw = function(){
-      //console.log('giDrawing');
 
+    /******************************************************************
+    *                     GAME DRAW METHOD
+    ******************************************************************/
+    var draw = function(){
       // clear the screen
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -182,27 +215,27 @@ function Game(){
       ctx.fillStyle='green';
       ctx.fillText('Player1: ' + paddle1.score ,10,30); 
       
-      ctx.fillText('Player2: ' + paddle2.score , canvas.width - 100,30); 
+      ctx.fillText('Player2: ' + paddle2.score , canvas.width -  100,30); 
 
     };
-    this.drawText = function(size, x, y){
-      ctx.font='20px Georgia';
-      ctx.fillStyle='green';
-      ctx.fillText('Hello World!',10,50);
-    };
+
 
     /////////////////////////
     // PUBLIC METHODS
     /////////////////////////
     
     // return the fps setting
+    // Notice the parens + the outer()
+    // that says hey.. launch run this immediatlely
+    // that seems to be the key to handing this 
+    // internal variable to the outside world via
+    // a "public interface" blah blah bblah
     this.fps = (function(){
       return fps;
     })();
    
 
     // the main game loop.
-    // this is really the only public method (for now)
     this.run = function(){
       //console.log('In Run ' + running);
       if(running){
@@ -211,16 +244,9 @@ function Game(){
       }
     };
 
-   /*********************************************************
-   *
-   *                KEYBOARD EVENT HANDLERS
-   *
-   * The following two functions handle onkeydown and onkeyup events
-   * we grab the keycode and respond to it if needed.
-   * keycodes are unicode 
-   ********************************************************/
-  // For smoother input it makes sense to capture keydown and keyup events
-  // and set movement accordingly.
+  /*********************************************************
+  *                KEYBOARD EVENT HANDLERS
+  ********************************************************/
   this.onKeyDownEvent = function(event){
     var chCode = ('which' in event) ? event.which : event.keyCode;
     switch(chCode){
@@ -248,14 +274,11 @@ function Game(){
           paddle2.velY += paddle2.speed;
         }
         break;
-      
       case 32:
         console.log('Space pressed');
-
       default:
         console.log('Unhandled Key: ' + chCode);
     }
-
   }
   this.onKeyUpEvent = function(event){
     var chCode = ('which' in event) ? event.which : event.keyCode;
@@ -264,33 +287,25 @@ function Game(){
         console.log('w released');
         paddle1.velY = 0; 
         break;
-
       case 83:
         console.log('s released');
         paddle1.velY = 0; 
         break;
-      
       case 38:
         console.log('Up arrow released');
         paddle2.velY = 0; 
         break;
-
       case 40:
         console.log('Down arrow released');
         paddle2.velY = 0; 
         break;
-
       case 32:
         console.log('Space released');
         break;
-
-
       default:
         console.log('Unhandled Key: ' + chCode);
     }
-
   }
-
   }
 }
 
